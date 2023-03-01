@@ -2,6 +2,8 @@
 
 require('dotenv').config()
 let XMLHttpRequest = require('xhr2');
+let fs = require('fs')
+let formatUrlParams = require('./tools.js').fup;
 let TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN
 let TELEGRAM_ID = process.env.TELEGRAM_ID
 let COIN_MARKET_CAP_TOKEN = process.env.COIN_MARKET_CAP_TOKEN
@@ -33,41 +35,51 @@ const apis = {
 } 
 
 
-function apply_api_params(params, message=false) { // xhr as arg?
+function make_api_call(api, method, msg_or_endpoint=false, url_args=false) {
+    let xhr = new XMLHttpRequest();
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+            json_response = JSON.parse(xhr.responseText) 
+            console.log(json_response);
+            fs.writeFile('myjsonfile.json', JSON.stringify(json_response), 'utf8', function(err) {
+                if (err) throw err;
+                console.log('complete');
+                });
 
-    // if params empty, return false
-    if (Object.keys(params).length === 0) return false
+        }
+    }
 
-    // determine operations by name of api
-    switch (params.name) {
+    let api_parameters = apis[api]
+
+    // edit url, if needed
+    if (msg_or_endpoint) api_parameters.url += msg_or_endpoint
+    if (url_args) api_parameters.url += formatUrlParams(url_args)
+    // console.log(api_parameters.url)
+    // return
+
+    // open xhr request
+    xhr.open(method, api_parameters.url, true);
+
+    // apply api-specific parameters to the call
+    switch (api_parameters.name) {
         case 'coin_market_cap':
-            xhr.setRequestHeader(params.key.header, params.key.val)
+            xhr.setRequestHeader(api_parameters.key.header, api_parameters.key.val)
             break
         case 'telegram':
-            if (message) params.url = params.url + message
             break
     }
 
-    return params
-}
-// apply_api_params(apis['telegram'], message='hello')
-
-function make_api_call(api, method, message=false) {
-    let xhr = new XMLHttpRequest();
-    
-    let params = apis[api]
-
-    // apply api-specific parameters to the call
-    apply_api_params(params, message=message)
-
-    xhr.open(method, params.url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     console.log(`sending ${method} request to ${api}`)
-    xhr.send()
+    xhr.send(url_args)
 }
-make_api_call('telegram', 'POST', message='hello!')
+
+// make_api_call('coin_market_cap', 'GET', msg_or_endpoint='/v1/cryptocurrency/listings/latest')
+// make_api_call('telegram', 'POST', message='hello!')
 
 
 
 
 // send_tg_bot_message('hello')
+module.exports = make_api_call

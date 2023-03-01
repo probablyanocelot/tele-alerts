@@ -1,2 +1,4 @@
 .env
 node_modules/
+myjsonfile.json
+tele-alerts.code-workspace
