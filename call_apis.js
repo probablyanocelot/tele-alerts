@@ -46,6 +46,7 @@ function make_api_call(api, method, msg_or_endpoint = false, url_args = false) {
 
         // open xhr request
         xhr.open(method, api_parameters.url, true);
+
         // apply api-specific parameters to the call
         switch (api_parameters.name) {
             case 'coin_market_cap':
@@ -87,5 +88,4 @@ function make_api_call(api, method, msg_or_endpoint = false, url_args = false) {
 //         console.error('Augh, there was an error!', err.statusText);
 //     });
 
-// send_tg_bot_message('hello')
 module.exports = make_api_call

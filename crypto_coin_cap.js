@@ -8,7 +8,6 @@ function price_conversion(from_currency, to_currency) {
         'symbol': from_currency,
         'convert': to_currency
     }
-    // console.log(formatUrlParams(request_parameters))
     make_api_call('coin_market_cap', 'GET', msg_or_endpoint = conversion_endpoint, url_args = request_parameters)
         .then(response => {
 
