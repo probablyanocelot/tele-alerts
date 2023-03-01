@@ -1,5 +1,8 @@
 let make_api_call = require('./call_apis.js');
 
+// coinmarketcap limit = 333/day, 259460 ~= 333x/day
+let timeout = 259460
+
 function price_conversion(from_currency, to_currency) {
     let conversion_endpoint = '/v1/tools/price-conversion'
 
@@ -18,6 +21,7 @@ function price_conversion(from_currency, to_currency) {
 
             let message = `${from_currency} has reached ${price} ${to_currency}`
             if (price >= goal_price) make_api_call('telegram', 'POST', msg_or_endpoint = message)
+                .catch(err => console.log(err))
         })
         .catch(err => console.log(err))
 }
