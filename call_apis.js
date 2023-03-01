@@ -32,67 +32,42 @@ const apis = {
     }
 } 
 
-function parse_api_creds(api) {
-    let data = {}
 
-    switch (api) {
+function apply_api_params(params, message=false) { // xhr as arg?
+
+    // if params empty, return false
+    if (Object.keys(params).length === 0) return false
+
+    // determine operations by name of api
+    switch (params.name) {
         case 'coin_market_cap':
-            data = { key: apis[api][key] }
-            break
-    }
-
-    return data
-}
-
-function apply_api_creds(creds, message=false) { // xhr as arg?
-    // data = {}
-
-    // if creds empty, return false
-    if (Object.keys(creds).length === 0) return false
-
-    switch (creds.name) {
-        case 'coin_market_cap':
-            xhr.setRequestHeader(creds.key.header, creds.key.val)
+            xhr.setRequestHeader(params.key.header, params.key.val)
             break
         case 'telegram':
-            if (message) {
-                creds.url = creds.url + `&text=${message}`
-            }
+            if (message) params.url = params.url + message
             break
     }
 
-    return creds //return data
+    return params
 }
-// apply_api_creds(apis['telegram'], message='hello')
+// apply_api_params(apis['telegram'], message='hello')
 
 function make_api_call(api, method, message=false) {
     let xhr = new XMLHttpRequest();
     
-    let creds = apis[api] // let creds = parse_api_creds(api)
-    console.log(creds)
-    apply_api_creds(creds, message=message)
-    
-    // console.log(apply_api_creds(creds, message))
+    let params = apis[api]
 
-    console.log(creds.url)
-    xhr.open(method, creds.url, true);
+    // apply api-specific parameters to the call
+    apply_api_params(params, message=message)
+
+    xhr.open(method, params.url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    console.log('sending request')
-    console.log(xhr)
+    console.log(`sending ${method} request to ${api}`)
     xhr.send()
 }
 make_api_call('telegram', 'POST', message='hello!')
 
 
-function send_tg_bot_message(message) {
-    // console.log("Sending message to Telegram");
-    let xhr = new XMLHttpRequest();
-
-    message = `${message}`;
-    xhr.open("POST", `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_ID}&text=${message}`, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send();
-}
 
 
 // send_tg_bot_message('hello')
