@@ -19,9 +19,13 @@ function price_conversion(from_currency, to_currency) {
             let message = `${from_currency} has reached ${price} ${to_currency}`
             if (price >= goal_price) make_api_call('telegram', 'POST', msg_or_endpoint = message)
         })
+        .catch(err => console.log(err))
 }
 
 
-  
-price_conversion('SHIB','USD')
+function alert_shib() {
+    price_conversion('SHIB', 'USD')
+    setTimeout(alert_shib, 10000)
+}
 
+alert_shib()
