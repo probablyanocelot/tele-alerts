@@ -2,7 +2,6 @@
 
 require('dotenv').config()
 let XMLHttpRequest = require('xhr2');
-let fs = require('fs')
 let formatUrlParams = require('./tools.js').fup;
 let TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN
 let TELEGRAM_ID = process.env.TELEGRAM_ID
@@ -35,51 +34,58 @@ const apis = {
 } 
 
 
-function make_api_call(api, method, msg_or_endpoint=false, url_args=false) {
-    let xhr = new XMLHttpRequest();
-    
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == XMLHttpRequest.DONE) {
-            json_response = JSON.parse(xhr.responseText) 
-            console.log(json_response);
-            fs.writeFile('myjsonfile.json', JSON.stringify(json_response), 'utf8', function(err) {
-                if (err) throw err;
-                console.log('complete');
-                });
+function make_api_call(api, method, msg_or_endpoint = false, url_args = false) {
+    return new Promise(function (resolve, reject){
+        let xhr = new XMLHttpRequest();
 
+        let api_parameters = apis[api]
+
+        // edit url, if needed
+        if (msg_or_endpoint) api_parameters.url += msg_or_endpoint
+        if (url_args) api_parameters.url += formatUrlParams(url_args)
+
+        // open xhr request
+        xhr.open(method, api_parameters.url, true);
+        // apply api-specific parameters to the call
+        switch (api_parameters.name) {
+            case 'coin_market_cap':
+                xhr.setRequestHeader(api_parameters.key.header, api_parameters.key.val)
+                break
+            case 'telegram':
+                break
         }
-    }
 
-    let api_parameters = apis[api]
-
-    // edit url, if needed
-    if (msg_or_endpoint) api_parameters.url += msg_or_endpoint
-    if (url_args) api_parameters.url += formatUrlParams(url_args)
-    // console.log(api_parameters.url)
-    // return
-
-    // open xhr request
-    xhr.open(method, api_parameters.url, true);
-
-    // apply api-specific parameters to the call
-    switch (api_parameters.name) {
-        case 'coin_market_cap':
-            xhr.setRequestHeader(api_parameters.key.header, api_parameters.key.val)
-            break
-        case 'telegram':
-            break
-    }
-
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    console.log(`sending ${method} request to ${api}`)
-    xhr.send(url_args)
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            if (this.status >= 200 && this.status < 300) {
+                resolve(xhr.response);
+            } else {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            }
+        };
+        xhr.onerror = function () {
+            reject({
+                status: this.status,
+                statusText: xhr.statusText
+            });
+        };
+        console.log(`sending ${method} request to ${api}`)
+        xhr.send(url_args)
+    })
 }
 
 // make_api_call('coin_market_cap', 'GET', msg_or_endpoint='/v1/cryptocurrency/listings/latest')
-// make_api_call('telegram', 'POST', message='hello!')
-
-
-
+// make_api_call('telegram', 'POST', msg_or_endpoint = 'hello!')
+//     .then(function (result) {
+//         console.log(result);
+//         logResultToTextBox(result)
+//     })
+//     .catch(function (err) {
+//         console.error('Augh, there was an error!', err.statusText);
+//     });
 
 // send_tg_bot_message('hello')
 module.exports = make_api_call
