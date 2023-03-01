@@ -1,8 +1,10 @@
+require('dotenv').config()
 let XMLHttpRequest = require('xhr2');
-// console.log(CHAT_ID)
-// console.log(TELEGRAM_TOKEN)
+let TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN
+let CHAT_ID = process.env.CHAT_ID
+console.log(CHAT_ID)
+console.log(TELEGRAM_TOKEN)
 
-// let { CHAT_ID, http_token } = require('secrets');
 
 function send_tg_bot_message(message) {
     console.log("Sending message to Telegram");
