@@ -26,7 +26,7 @@ function price_conversion(from_currency, to_currency) {
                 .catch(err => console.log(err))
         })
         .catch(err => console.log(err))
-    setTimeout(price_conversion, 10000, from_currency, to_currency)
+    setTimeout(price_conversion, timeout, from_currency, to_currency)
     return
 }
 
@@ -35,5 +35,6 @@ function alert_shib() {
     price_conversion('SHIB', 'USD')
 }
 
-setTimeout(price_conversion, timeout, 'SHIB', 'USD')
+alert_shib()
+// setTimeout(price_conversion, timeout, 'SHIB', 'USD')
 // alert_shib()
