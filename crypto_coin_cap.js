@@ -1,6 +1,6 @@
 let make_api_call = require('./call_apis.js');
 
-// coinmarketcap limit = 333/day, 259460 ~= 333x/day
+// coinmarketcap limit = 333/day, 259460ms ~= 333x/day
 let timeout = 259460
 
 function price_conversion(from_currency, to_currency) {
@@ -15,21 +15,25 @@ function price_conversion(from_currency, to_currency) {
         .then(response => {
 
             let json_response = JSON.parse(response)
+            console.log(response)
             let price = json_response['data']['quote'][to_currency]['price']
 
-            let goal_price = 0.00001
+            // TODO: some kind of changing goal, every +0.00001 or something
+            let goal_price = 0.00002
 
             let message = `${from_currency} has reached ${price} ${to_currency}`
             if (price >= goal_price) make_api_call('telegram', 'POST', msg_or_endpoint = message)
                 .catch(err => console.log(err))
         })
         .catch(err => console.log(err))
+    setTimeout(price_conversion, 10000, from_currency, to_currency)
+    return
 }
 
 
 function alert_shib() {
     price_conversion('SHIB', 'USD')
-    setTimeout(alert_shib, 10000)
 }
 
-alert_shib()
+setTimeout(price_conversion, timeout, 'SHIB', 'USD')
+// alert_shib()

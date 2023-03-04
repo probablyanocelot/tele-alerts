@@ -40,12 +40,14 @@ function make_api_call(api, method, msg_or_endpoint = false, url_args = false) {
 
         let api_parameters = apis[api]
 
+        let url = api_parameters.url;
+
         // edit url, if needed
-        if (msg_or_endpoint) api_parameters.url += msg_or_endpoint
-        if (url_args) api_parameters.url += formatUrlParams(url_args)
+        if (msg_or_endpoint) url += msg_or_endpoint
+        if (url_args) url += formatUrlParams(url_args)
 
         // open xhr request
-        xhr.open(method, api_parameters.url, true);
+        xhr.open(method, url, true);
 
         // apply api-specific parameters to the call
         switch (api_parameters.name) {
@@ -74,6 +76,7 @@ function make_api_call(api, method, msg_or_endpoint = false, url_args = false) {
             });
         };
         console.log(`sending ${method} request to ${api}`)
+        console.log(xhr)
         xhr.send(url_args)
     })
 }
