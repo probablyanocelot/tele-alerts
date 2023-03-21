@@ -3,3 +3,5 @@ node_modules/
 myjsonfile.json
 tele-alerts.code-workspace
 conversion.json
+shib-alert.bat
+shib-alert.txt
